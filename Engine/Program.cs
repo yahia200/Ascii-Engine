@@ -58,10 +58,9 @@ Console.CursorSize = 1;
 //FConsole.FillBuffer('-', (ConsoleColor)15, 0);
 while (true)
 {
-	screen.DrawMesh(mesh1);
+	screen.DrawMesh(mesh1,true);
 	//screen.White();
     screen.View();
 	screen.ClearFrame();
-	Thread.Sleep(100);
 }
 
