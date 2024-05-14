@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 // Console.WindowHeight = 120;
 ConsoleHelper.SetCurrentFont("Consolas", 60);
-Console.WindowHeight = 420;
-Console.WindowWidth = 1120;
+Console.WindowHeight = 620;
+Console.WindowWidth = 1220;
 Screen screen = new(Console.WindowWidth,Console.WindowHeight);
 Point p1 = new(-1,-5,0);
 Point p2 = new(-1,5,0);

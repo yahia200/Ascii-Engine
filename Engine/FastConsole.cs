@@ -129,7 +129,7 @@ public static class FConsole {
         short colorset = Colorset(foreground, background);
         short gridset = Gridset(overline, leftline, rightline);
 
-        if (address < 0 || address >= buffer.Length) return; //throw new Exception("Can't write to address (" + x + "," + y + ").");
+        if (address < 0 || address >= buffer.Length) return;
         buffer[address].Char = c;
         buffer[address].Attributes = (short)(colorset + gridset);
 
@@ -147,7 +147,7 @@ public static class FConsole {
         }
     }
     public static void Clear(ConsoleColor foreground = ConsoleColor.Gray, ConsoleColor background = ConsoleColor.Black) {
-        FillBuffer(' ', foreground, background);
+        buffer = new CharInfo[width * height];
     }
 
     // Drawing the buffer to the screen
