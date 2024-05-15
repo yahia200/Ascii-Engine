@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 // Console.WindowHeight = 120;
 ConsoleHelper.SetCurrentFont("Consolas", 60);
-Console.WindowHeight = 620;
-Console.WindowWidth = 1220;
+Console.WindowWidth = 500;
+Console.WindowHeight = 200;
 Screen screen = new(Console.WindowWidth,Console.WindowHeight);
 Point p1 = new(-1,-5,0);
 Point p2 = new(-1,5,0);
@@ -49,18 +49,10 @@ Triangle[] cube = {
 Console.CursorSize = 1;
 #pragma warning restore CA1416 // Validate platform compatibility
 
-//screen.DrawMesh(mesh1);
-//screen.View();
-//Console.Clear();
-//Console.CursorTop = 0;
-//Console.CursorLeft = 0;
-//FConsole.Initialize("c");
-//FConsole.FillBuffer('-', (ConsoleColor)15, 0);
 while (true)
 {
-	screen.DrawMesh(mesh1,true);
-	//screen.White();
-    screen.View();
+	screen.DrawMesh(mesh1,Fill: true, Wire: true);
+	screen.View();
 	screen.ClearFrame();
 }
 

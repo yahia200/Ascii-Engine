@@ -1,13 +1,15 @@
 using System.Diagnostics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 class Screen{
     readonly int width;
     readonly int hight;
     Params param;
-    public int FT = 10;
+    public int FT = 16;
     public Point camera = new(0,0,0);
     private string chars = " .:-=+*#%@";
     public int IntesityRes = 9;
+    private Thread[] threads = new Thread[6];
 
     float time = 0;
 
@@ -33,7 +35,7 @@ class Screen{
     public void White(){
         for (int h=0;h<hight;h++){
             for (int w=0;w<width;w++){
-                FConsole.SetChar(w, h,'.', (ConsoleColor)0, 0);
+                FConsole.SetChar(w, h,'.', (ConsoleColor)15, 0);
             }
         }
     }
@@ -90,6 +92,7 @@ class Screen{
 
         return points;
     }
+
 
     public void FillTriangle(Triangle triangle, int intensity)
     {
@@ -196,62 +199,100 @@ class Screen{
             DrawLine(triangle.point2, triangle.point3, intsity);
             DrawLine(triangle.point3, triangle.point1, intsity);
             return;
-        
-        
-
     }
 
-    public void DrawMesh(Mesh mesh, bool Fill = false){
+    public void DrawMesh(Mesh mesh, bool Fill = true, bool Wire = false){
         param.SetRotZMatrix(0);
         param.SetRotXMatrix(0);
-        param.SetRotYMatrix(time/(FT*3));
-        foreach (Triangle triangle in mesh.triangles){
-
-            Triangle rotTrix = RotaTrix(triangle);
-            Triangle rotTrixy = RotaTriy(rotTrix);
-            Triangle rotTrixyz = RotaTriz(rotTrixy);
-
-            Triangle transTri = translate(rotTrixyz);
-            transTri.CalcNormal();
-
-            if (transTri.normal.x * (transTri.point1.x - camera.x) +
-               transTri.normal.y * (transTri.point1.y - camera.y) +
-               transTri.normal.z * (transTri.point1.z - camera.z) < 0.0f)
+        param.SetRotYMatrix(time / (FT * 3));
+        if (Fill)
+        {
+            for (int i = 0; i < this.threads.Length; i++)
             {
-                Point light_direction = new(0, 0, -1);
-                float l = (float)Math.Sqrt(light_direction.x * light_direction.x + light_direction.y * light_direction.y + light_direction.z * light_direction.z);
-                light_direction.x /= l; light_direction.y /= l; light_direction.z /= l;
-                float dp = transTri.normal.x * light_direction.x + transTri.normal.y * light_direction.y + transTri.normal.z * light_direction.z;
-                int intesity = (int)(dp* IntesityRes);
-
-
-                Triangle projectedTri = ProjTrianlge(transTri);
-
-                projectedTri.point1.x += 1; projectedTri.point1.y += 1;
-                projectedTri.point2.x += 1; projectedTri.point2.y += 1;
-                projectedTri.point3.x += 1; projectedTri.point3.y += 1;
-
-                projectedTri.point1.x *= (int)(0.5 * width); projectedTri.point1.y *= (int)(0.5 * hight);
-
-                projectedTri.point2.x *= (int)(0.5 * width); projectedTri.point2.y *= (int)(0.5 * hight);
-
-                projectedTri.point3.x *= (int)(0.5 * width); projectedTri.point3.y *= (int)(0.5 * hight);
-
-
-                if (!Fill)
+                if (Fill)
                 {
-                    DrawTriangle(projectedTri, intesity);
+                    this.threads[i] = new Thread(() => DrawMeshT(mesh, i * (1 / this.threads.Length), (i + 1) * (1 / this.threads.Length), Fill));
+                    this.threads[i].Start();
                 }
 
-                else
-                {
-                    FillTriangle(projectedTri, intesity);
-                }
+
+
+            }
+            //DrawMeshT(mesh, 0, mesh.triangles.Length, Fill);   
+
+            for (int i = 0; i < this.threads.Length; i++)
+            {
+                this.threads[i].Join();
             }
             
         }
+        if (Wire)
+        {
+            DrawMeshT(mesh, 0, mesh.triangles.Length, false, Wire);
+        }
         time++;
         Thread.Sleep(FT);
+
+
+    }
+
+   
+
+    public void DrawMeshT(Mesh mesh, int Start, int End, bool Fill = true, bool Wire = false){
+        if (Fill || Wire)
+        {
+            for (int i = 0; i < mesh.triangles.Length; i++)
+            {
+
+                Triangle rotTrix = RotaTrix(mesh.triangles[i]);
+                Triangle rotTrixy = RotaTriy(rotTrix);
+                Triangle rotTrixyz = RotaTriz(rotTrixy);
+
+                Triangle transTri = translate(rotTrixyz);
+                transTri.CalcNormal();
+
+                if (transTri.normal.x * (transTri.point1.x - camera.x) +
+                   transTri.normal.y * (transTri.point1.y - camera.y) +
+                   transTri.normal.z * (transTri.point1.z - camera.z) < 0.0f)
+                {
+                    int Intesity = 0;
+                    if (Fill) {
+                    Point light_direction = new(0, 0, -1);
+                    float l = (float)Math.Sqrt(light_direction.x * light_direction.x + light_direction.y * light_direction.y + light_direction.z * light_direction.z);
+                    light_direction.x /= l; light_direction.y /= l; light_direction.z /= l;
+                    float dp = transTri.normal.x * light_direction.x + transTri.normal.y * light_direction.y + transTri.normal.z * light_direction.z;
+                    Intesity = (int)(dp * IntesityRes);
+                    }
+
+
+
+                    Triangle projectedTri = ProjTrianlge(transTri);
+
+                    projectedTri.point1.x += 1; projectedTri.point1.y += 1;
+                    projectedTri.point2.x += 1; projectedTri.point2.y += 1;
+                    projectedTri.point3.x += 1; projectedTri.point3.y += 1;
+
+                    projectedTri.point1.x *= (int)(0.5 * width); projectedTri.point1.y *= (int)(0.5 * hight);
+
+                    projectedTri.point2.x *= (int)(0.5 * width); projectedTri.point2.y *= (int)(0.5 * hight);
+
+                    projectedTri.point3.x *= (int)(0.5 * width); projectedTri.point3.y *= (int)(0.5 * hight);
+
+
+                    if (!Fill)
+                    {
+                        DrawTriangle(projectedTri, Intesity);
+                    }
+
+                    else
+                    {
+                        FillTriangle(projectedTri, Intesity);
+                    }
+                }
+
+            }
+            time++;
+        }
     }
 
     public Triangle translate(Triangle triangle)
