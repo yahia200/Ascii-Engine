@@ -17,7 +17,7 @@ class Screen{
         this.width = w;
         this.hight = h;
         ClearFrame();
-        param = new(hight, width);
+        param = new((int)(hight*1.5), width);
         FConsole.Initialize("Engine");
         FConsole.Clear();
         FConsole.FillBuffer(' ', (ConsoleColor)0, (ConsoleColor)0);
@@ -194,14 +194,16 @@ class Screen{
 
 
 
-    public void DrawTriangle(Triangle triangle, int intsity){
+    public void DrawTriangle(Triangle triangle, int intsity)
+    {
             DrawLine(triangle.point1, triangle.point2, intsity);
             DrawLine(triangle.point2, triangle.point3, intsity);
             DrawLine(triangle.point3, triangle.point1, intsity);
             return;
     }
 
-    public void DrawMesh(Mesh mesh, bool Fill = true, bool Wire = false){
+    public void DrawMesh(Mesh mesh, bool Fill = true, bool Wire = false)
+    {
         param.SetRotZMatrix(0);
         param.SetRotXMatrix(0);
         param.SetRotYMatrix(time / (FT * 3));
@@ -238,7 +240,8 @@ class Screen{
 
    
 
-    public void DrawMeshT(Mesh mesh, int Start, int End, bool Fill = true, bool Wire = false){
+    public void DrawMeshT(Mesh mesh, int Start, int End, bool Fill = true, bool Wire = false)
+    {
         if (Fill || Wire)
         {
             for (int i = 0; i < mesh.triangles.Length; i++)
@@ -257,11 +260,11 @@ class Screen{
                 {
                     int Intesity = 0;
                     if (Fill) {
-                    Point light_direction = new(0, 0, -1);
-                    float l = (float)Math.Sqrt(light_direction.x * light_direction.x + light_direction.y * light_direction.y + light_direction.z * light_direction.z);
-                    light_direction.x /= l; light_direction.y /= l; light_direction.z /= l;
-                    float dp = transTri.normal.x * light_direction.x + transTri.normal.y * light_direction.y + transTri.normal.z * light_direction.z;
-                    Intesity = (int)(dp * IntesityRes);
+                        Point light_direction = new(0, 0, -1);
+                        float l = (float)Math.Sqrt(light_direction.x * light_direction.x + light_direction.y * light_direction.y + light_direction.z * light_direction.z);
+                        light_direction.x /= l; light_direction.y /= l; light_direction.z /= l;
+                        float dp = transTri.normal.x * light_direction.x + transTri.normal.y * light_direction.y + transTri.normal.z * light_direction.z;
+                        Intesity = (int)Math.Round(dp * IntesityRes);
                     }
 
 

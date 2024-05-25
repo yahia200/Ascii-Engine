@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Yahia\\Documents\\GitHub\\Ascii-Engine\\Engine\\Engine.csproj": {}
+    "C:\\Users\\YAHIA\\OneDrive\\Documents\\GitHub\\Ascii-Engine\\Engine\\Engine.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Yahia\\Documents\\GitHub\\Ascii-Engine\\Engine\\Engine.csproj": {
+    "C:\\Users\\YAHIA\\OneDrive\\Documents\\GitHub\\Ascii-Engine\\Engine\\Engine.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Yahia\\Documents\\GitHub\\Ascii-Engine\\Engine\\Engine.csproj",
+        "projectUniqueName": "C:\\Users\\YAHIA\\OneDrive\\Documents\\GitHub\\Ascii-Engine\\Engine\\Engine.csproj",
         "projectName": "Engine",
-        "projectPath": "C:\\Users\\Yahia\\Documents\\GitHub\\Ascii-Engine\\Engine\\Engine.csproj",
-        "packagesPath": "C:\\Users\\Yahia\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Yahia\\Documents\\GitHub\\Ascii-Engine\\Engine\\obj\\",
+        "projectPath": "C:\\Users\\YAHIA\\OneDrive\\Documents\\GitHub\\Ascii-Engine\\Engine\\Engine.csproj",
+        "packagesPath": "C:\\Users\\YAHIA\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\YAHIA\\OneDrive\\Documents\\GitHub\\Ascii-Engine\\Engine\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Yahia\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\YAHIA\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -34,6 +34,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -55,7 +60,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
