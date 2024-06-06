@@ -1,24 +1,26 @@
 // #include "snake.c"
 #include "engine.c"
+#include <ncurses.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <unistd.h>
 int main() {
   struct Mesh mesh;
-  struct Point p1 = {0.0f, 0.0f, 0.0f};
+  struct Point p1 = {-1.0f, -1.0f, -1.0f};
 
-  struct Point p2 = {0.0f, 1.0f, 0.0f};
+  struct Point p2 = {-1.0f, 1.0f, -1.0f};
   
-  struct Point p3 = {1.0f, 1.0f, 0.0f};
+  struct Point p3 = {1.0f, 1.0f, -1.0f};
   
-  struct Point p4 = {1.0f, 0.0f, 0.0f};
+  struct Point p4 = {1.0f, -1.0f, -1.0f};
   
   struct Point p5 = {1.0f, 1.0f, 1.0f};
   
-  struct Point p6 = {1.0f, 0.0f, 1.0f};
+  struct Point p6 = {1.0f, -1.0f, 1.0f};
   
-  struct Point p7 = {0.0f, 0.0f, 1.0f};
+  struct Point p7 = {-1.0f, -1.0f, 1.0f};
   
-  struct Point p8 = {0.0f, 1.0f, 1.0f};
+  struct Point p8 = {-1.0f, 1.0f, 1.0f};
   
   struct Triangle t1 = {p1,p2,p3};
   
@@ -57,27 +59,19 @@ int main() {
   mesh.Triangles[10] = t11;
   mesh.Triangles[11] = t12;
   mesh.size = 12;
-  initScreen();
-  // while (1) {
-  //   drawMesh(mesh);
-  //   clearScreen();
-  //   usleep(16 * 1000);
-  // }
-
-  // Initialize matrices
+ initScreen();
+  rotate();
   initMat();
+   while (1) {
+     drawMesh(&mesh);
+    clearScreen();
+    rotate();
+    usleep(16*1000);
 
-  // Print matrices
-  printw("Projection Matrix:\n");
-  printMatrix(matProj);
-  printw("\nRotation Matrix Z:\n");
-  printMatrix(matRotZ);
-  printw("\nRotation Matrix X:\n");
-  printMatrix(matRotX);
+   }
 
-  getch(); // Wait for user input before exiting
-  endwin(); // End ncurses mode
+
+  endwin();
 
   return 0;
-  //  startGame();
 }
