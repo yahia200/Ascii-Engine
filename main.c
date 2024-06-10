@@ -1,67 +1,28 @@
 #include "engine.c"
+#include <ncurses.h>
+#include <time.h>
 #include <unistd.h>
+clock_t timer;
+double frameTime;
+int sleepDuration = 10 * 1000;
 int main() {
-  struct Mesh mesh;
-  struct Point p1 = {-1.0f, -1.0f, -1.0f};
-
-  struct Point p2 = {-1.0f, 1.0f, -1.0f};
-
-  struct Point p3 = {1.0f, 1.0f, -1.0f};
-
-  struct Point p4 = {1.0f, -1.0f, -1.0f};
-
-  struct Point p5 = {1.0f, 1.0f, 1.0f};
-
-  struct Point p6 = {1.0f, -1.0f, 1.0f};
-
-  struct Point p7 = {-1.0f, -1.0f, 1.0f};
-
-  struct Point p8 = {-1.0f, 1.0f, 1.0f};
-
-  struct Triangle t1 = {p1, p2, p3};
-
-  struct Triangle t2 = {p1, p3, p4};
-
-  struct Triangle t3 = {p4, p3, p5};
-
-  struct Triangle t4 = {p4, p5, p6};
-
-  struct Triangle t5 = {p6, p5, p8};
-
-  struct Triangle t6 = {p6, p8, p7};
-
-  struct Triangle t7 = {p7, p8, p2};
-
-  struct Triangle t8 = {p7, p2, p1};
-
-  struct Triangle t9 = {p2, p8, p5};
-
-  struct Triangle t10 = {p2, p5, p3};
-
-  struct Triangle t11 = {p6, p7, p1};
-
-  struct Triangle t12 = {p6, p1, p4};
-
-  mesh.Triangles[0] = t1;
-  mesh.Triangles[1] = t2;
-  mesh.Triangles[2] = t3;
-  mesh.Triangles[3] = t4;
-  mesh.Triangles[4] = t5;
-  mesh.Triangles[5] = t6;
-  mesh.Triangles[6] = t7;
-  mesh.Triangles[7] = t8;
-  mesh.Triangles[8] = t9;
-  mesh.Triangles[9] = t10;
-  mesh.Triangles[10] = t11;
-  mesh.Triangles[11] = t12;
-  mesh.size = 12;
   initScreen();
+  LoadFromObjectFile("duck.obj");
+  camera.y -= 2;
   while (1) {
+    timer = clock();
     drawMesh(&mesh, 1);
+    // drawMesh(&mesh, 0);
     clearScreen();
-    rotate();
-    initMesh(&mesh);
-    usleep(16*1000);
+    fThetay -= 0.01;
+   // fThetax -=0.01;
+   // fThetaz -=0.01;
+    usleep(sleepDuration);
+    timer = clock() - timer;
+    frameTime =
+        ((double)timer) / CLOCKS_PER_SEC + (float)sleepDuration / 1000000;
+    move(0, 0);
+    printw("FPS: %f", 1 / frameTime);
   }
 
   endwin();
