@@ -11,11 +11,9 @@ int main() {
   camera.y -= 2;
   while (1) {
     timer = clock();
-   drawMesh(1);
     clearScreen();
+   drawMesh(1);
     fThetay -= 0.01;
-   // fThetax -=0.01;
-   // fThetaz -=0.01;
     usleep(sleepDuration);
     timer = clock() - timer;
     frameTime =

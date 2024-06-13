@@ -82,7 +82,7 @@ void Matrix_MultiplyMatrix(struct mat m1, struct mat m2, struct mat *m) {
                    m1.m[r][2] * m2.m[2][c] + m1.m[r][3] * m2.m[3][c];
 }
 
-void Matrix_QuickInverse(struct mat m, struct mat * matrix) // Only for Rotation/Translation Matrices
+void Matrix_QuickInverse(struct mat m, struct mat * matrix) 
 	{
 		matrix->m[0][0] = m.m[0][0]; matrix->m[0][1] = m.m[1][0]; matrix->m[0][2] = m.m[2][0]; matrix->m[0][3] = 0.0f;
 		matrix->m[1][0] = m.m[0][1]; matrix->m[1][1] = m.m[1][1]; matrix->m[1][2] = m.m[2][1]; matrix->m[1][3] = 0.0f;

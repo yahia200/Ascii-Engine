@@ -171,26 +171,25 @@ void *drawDiv(void *in) {
     Point_Sub(triTransformed.p[1], triTransformed.p[0], &line1);
     Point_Sub(triTransformed.p[2], triTransformed.p[0], &line2);
 
-    // Take cross product of lines to get normal to triangle surface
+    
     Point_CrossProduct(line1, line2, &normal);
 
-    // You normally need to normalise a normal!
+    
     normal = Point_Normalise(normal);
     struct Point vCameraRay;
     Point_Sub(triTransformed.p[0], camera, &vCameraRay);
-    // printw("%f  %f  %f  %f\n",normal.x, normal.y,normal.z, normal.w);
+    
 
-    // printw("  %f\n", Point_DotProduct(normal, vCamera));
-    // printw("\n%f  %f  %f  %f", triTransformed.p[0].x, triTransformed.p[0].y,
-    // triTransformed.p[0].z, triTransformed.p[0].w);
+    
     if (Point_DotProduct(normal, vCameraRay) < 0.0f) {
       struct Point light_direction = {0.0f, 0.0f, -1.0f, 1};
       light_direction = Point_Normalise(light_direction);
 
-      // How "aligned" are light direction and triangle surface normal?
+      
       float dp = fmax(0.1f, Point_DotProduct(light_direction, normal));
 
       int intensity = (int)(dp * brightnessRange);
+
       // view
       Matrix_MultiplyPoint(matView, triTransformed.p[0], &triViewed.p[0]);
       Matrix_MultiplyPoint(matView, triTransformed.p[2], &triViewed.p[1]);
@@ -201,9 +200,7 @@ void *drawDiv(void *in) {
           (struct Point){0, 0, 1, 1}, (struct Point){0, 0, 1, 1}, &triViewed,
           &clipped[0], &clipped[1]);
 
-      // printw("%d", nClipped);
-      // printw("\n%f  %f %f  %f", clipped[0].p[0].x, clipped[0].p[0].y,
-      // clipped[0].p[0].z, clipped[0].p[0].w);
+      
       for (int n = 0; n < nClipped; n++) {
         // Project
         Matrix_MultiplyPoint(matProj, clipped[n].p[0], &triProjected.p[0]);
@@ -214,8 +211,7 @@ void *drawDiv(void *in) {
         Point_Div(triProjected.p[0], triProjected.p[0].w, &triProjected.p[0]);
         Point_Div(triProjected.p[1], triProjected.p[1].w, &triProjected.p[1]);
         Point_Div(triProjected.p[2], triProjected.p[2].w, &triProjected.p[2]);
-        // printw("%f  %f  %f  %f\n", triProjected.p[0].x, triProjected.p[0].y,
-        // triProjected.p[0].z, triProjected.p[0].w);
+        
         // offset
         struct Point vOffsetView = {1, 1, 0, 1};
         Point_Add(triProjected.p[0], vOffsetView, &triProjected.p[0]);

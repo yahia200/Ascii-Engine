@@ -3,7 +3,7 @@
 struct Point camera = {0, 0, 0, 1};
 struct Point lookDir;
 void drawPoint(struct Point point, int intensity) {
-  //  printw("\n%f   %f   %f\n", point.x, point.y, point.z);
+
   if (point.x >= 0 && point.x < MAX_WIDTH && point.y >= 0 &&
       point.y < MAX_HIEGHT) {
      mvwaddch(stdscr, (int)(point.y / 2), (int)(point.x),
@@ -15,7 +15,7 @@ void drawLine(struct Point po1, struct Point po2, int intensity) {
   struct Point p2 = {(int)po2.x, (int)po2.y, (int)po2.z};
   int dx = (int)(fabsf(p2.x - p1.x)), sx = p1.x < p2.x ? 1 : -1;
   int dy = (int)(-fabsf(p2.y - p1.y)), sy = p1.y < p2.y ? 1 : -1;
-  int err = dx + dy, e; /* error value e_xy */
+  int err = dx + dy, e; 
 
   for (;;) {
     drawPoint(p1, intensity);
@@ -107,11 +107,11 @@ void Matrix_PointAt(struct Point pos, struct Point target, struct Point up,
   Point_Sub(up, a, &newUp);
   newUp = Point_Normalise(newUp);
 
-  // New Right direction is easy, its just cross product
+  
   struct Point newRight;
   Point_CrossProduct(newUp, newForward, &newRight);
 
-  // Construct Dimensioning and Translation Matrix
+  
   m->m[0][0] = newRight.x;
   m->m[0][1] = newRight.y;
   m->m[0][2] = newRight.z;
@@ -154,20 +154,18 @@ int Triangle_ClipAgainstPlane(struct Point plane_p, struct Point plane_n,
                               struct Triangle *in_tri,
                               struct Triangle *out_tri1,
                               struct Triangle *out_tri2) {
-  // Make sure plane normal is indeed normal
+  
   plane_n = Point_Normalise(plane_n);
 
-  // Return signed shortest distance from point to plane, plane normal must be
-  // normalised
+  
 
-  // Create two temporary storage arrays to classify points either side of plane
-  // If distance sign is positive, point lies on "inside" of plane
+  
   struct Point *inside_points[3];
   int nInsidePointCount = 0;
   struct Point *outside_points[3];
   int nOutsidePointCount = 0;
 
-  // Get signed distance of each point in struct Triangle to plane
+  
   float d0 = dist(in_tri->p[0], plane_n, plane_p);
   float d1 = dist(in_tri->p[1], plane_n, plane_p);
   float d2 = dist(in_tri->p[2], plane_n, plane_p);
@@ -188,20 +186,16 @@ int Triangle_ClipAgainstPlane(struct Point plane_p, struct Point plane_n,
     outside_points[nOutsidePointCount++] = &in_tri->p[2];
   }
 
-  // Now classify struct Triangle points, and break the input struct Triangle
-  // into smaller output struct Triangles if required. There are four possible
-  // outcomes...
+  
 
   if (nInsidePointCount == 0) {
-    // All points lie on the outside of plane, so clip whole struct Triangle
-    // It ceases to exist
+    
 
-    return 0; // No returned struct Triangles are valid
+    return 0; 
   }
 
   if (nInsidePointCount == 3) {
-    // All points lie on the inside of plane, so do nothing
-    // and allow the struct Triangle to simply pass through
+    
     out_tri1->p[0].x = in_tri->p[0].x;
     out_tri1->p[0].y = in_tri->p[0].y;
     out_tri1->p[0].z = in_tri->p[0].z;
@@ -217,39 +211,27 @@ int Triangle_ClipAgainstPlane(struct Point plane_p, struct Point plane_n,
     out_tri1->p[2].z = in_tri->p[2].z;
     out_tri1->p[2].w = in_tri->p[2].w;
 
-    return 1; // Just the one returned original struct Triangle is valid
+    return 1; 
   }
 
   if (nInsidePointCount == 1 && nOutsidePointCount == 2) {
-    // Triangle should be clipped. As two points lie outside
-    // the plane, the struct Triangle simply becomes a smaller struct Triangle
-
-    // Copy appearance info to new struct Triangle
-
-    // The inside point is valid, so keep that...
+    
     out_tri1->p[0].x = inside_points[0]->x;
     out_tri1->p[0].y = inside_points[0]->y;
     out_tri1->p[0].z = inside_points[0]->z;
     out_tri1->p[0].w = inside_points[0]->w;
 
-    // but the two new points are at the locations where the
-    // original sides of the struct Triangle (lines) intersect with the plane
+    
     Point_IntersectPlane(plane_p, plane_n, *inside_points[0],
                          *outside_points[0], &out_tri1->p[1]);
     Point_IntersectPlane(plane_p, plane_n, *inside_points[0],
                          *outside_points[1], &out_tri1->p[2]);
 
-    return 1; // Return the newly formed single struct Triangle
+    return 1; 
   }
 
   if (nInsidePointCount == 2 && nOutsidePointCount == 1) {
-    // Triangle should be clipped. As two points lie inside the plane,
-    // the clipped struct Triangle becomes a "quad". Fortunately, we can
-    // represent a quad with two new struct Triangles
-
-    // The first struct Triangle consists of the two inside points and a new
-    // point determined by the location where one side of the struct Triangle
-    // intersects with the plane
+    
     out_tri1->p[0].x = inside_points[0]->x;
     out_tri1->p[0].y = inside_points[0]->y;
     out_tri1->p[0].z = inside_points[0]->z;
@@ -263,9 +245,7 @@ int Triangle_ClipAgainstPlane(struct Point plane_p, struct Point plane_n,
     Point_IntersectPlane(plane_p, plane_n, *inside_points[0],
                          *outside_points[0], &out_tri1->p[2]);
 
-    // The second struct Triangle is composed of one of he inside points, a
-    // new point determined by the intersection of the other side of the
-    // struct Triangle and the plane, and the newly created point above
+    
     out_tri2->p[0].x = inside_points[1]->x;
     out_tri2->p[0].y = inside_points[1]->y;
     out_tri2->p[0].z = inside_points[1]->z;
@@ -278,6 +258,6 @@ int Triangle_ClipAgainstPlane(struct Point plane_p, struct Point plane_n,
     Point_IntersectPlane(plane_p, plane_n, *inside_points[1],
                          *outside_points[0], &out_tri2->p[2]);
 
-    return 2; // Return two newly formed struct Triangles which form a quad
+    return 2; 
   }
 }

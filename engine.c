@@ -80,8 +80,8 @@ void split(char str1[], char splitLine[4][20]) {
 
 bool LoadFromObjectFile(char *sFilename) {
   char splitLine[4][20];
-  char const *const fileName = sFilename; /* should check that argc > 1 */
-  FILE *file = fopen(fileName, "r");      /* should check the result */
+  char const *const fileName = sFilename; 
+  FILE *file = fopen(fileName, "r");      
   char line[256];
   int c = 0;
   int t = 0;
@@ -108,11 +108,6 @@ bool LoadFromObjectFile(char *sFilename) {
     }
   }
   mesh.size = t;
-
-  // for(int i=0;i<c;i++){
-  //   printf("\n%f   %f   %f   %f",pointList[i].x, pointList[i].y,
-  //   pointList[i].z, pointList[i].w);
-  // }
 
   fclose(file);
   return true;

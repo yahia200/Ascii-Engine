@@ -6,5 +6,5 @@
 int MAX_WIDTH;
 int MAX_HIEGHT;
 
-char *brightness = " .:-=+*%@#";
+char *brightness = " .:-=+*%#@";
 int brightnessRange;
