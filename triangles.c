@@ -40,11 +40,31 @@ int comparePoints(const void *a, const void *b) {
   return mid2 - mid1;
 }
 
-void sortTri(struct Triangle t[MAX_MESH_SIZE]) {
+void sortTri(struct Triangle t[MAX_MESH_SIZE], int s) {
 
-  qsort(t, mesh.size, sizeof(struct Triangle), comparePoints);
+  qsort(t, s, sizeof(struct Triangle), comparePoints);
+}
+int comparePointsy(const void *a, const void *b) {
+  struct Triangle t1;
+  copyTriangle((struct Triangle *)a, &t1);
+  Matrix_MultiplyPoint(matW, t1.p[0], &t1.p[0]);
+  Matrix_MultiplyPoint(matW, t1.p[1], &t1.p[1]);
+  Matrix_MultiplyPoint(matW, t1.p[2], &t1.p[2]);
+
+  struct Triangle t2;
+  copyTriangle((struct Triangle *)b, &t2);
+  Matrix_MultiplyPoint(matW, t2.p[0], &t2.p[0]);
+  Matrix_MultiplyPoint(matW, t2.p[1], &t2.p[1]);
+  Matrix_MultiplyPoint(matW, t2.p[2], &t2.p[2]);
+  float mid1 = ((t1.p[0].y) + (t1.p[1].y) + (t1.p[2].y)) / 0.003;
+  float mid2 = ((t2.p[0].y) + (t2.p[1].y) + (t2.p[2].y)) / 0.003;
+  return mid2 - mid1;
 }
 
+void sortTriy(struct Triangle t[MAX_MESH_SIZE], int s) {
+
+  qsort(t, s, sizeof(struct Triangle), comparePointsy);
+}
 void fillBottomFlatTriangle(struct Point v1, struct Point v2, struct Point v3,
                             int intensity) {
   float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);

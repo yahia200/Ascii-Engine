@@ -2,8 +2,8 @@
 
 #define MAX_MESH_SIZE 100000
 #define DARK 2
-#define MAX_WIDTH 379
-#define MAX_HIEGHT 205
+int MAX_WIDTH;
+int MAX_HIEGHT;
 
 char *brightness = " .:-=+*%@#";
 int brightnessRange;

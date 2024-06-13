@@ -50,6 +50,9 @@ void initScreen() {
   curs_set(0);
   brightnessRange = strlen(brightness);
   pthread_create(&handler, NULL, handle, NULL);
+  getmaxyx(stdscr, MAX_HIEGHT, MAX_WIDTH);
+  MAX_HIEGHT *=2;
+
 }
 
 void split(char str1[], char splitLine[4][20]) {
