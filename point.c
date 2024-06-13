@@ -38,6 +38,14 @@ void Matrix_MultiplyPoint(struct mat m, struct Point i, struct Point *p) {
   p->z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + i.w * m.m[3][2];
   p->w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + i.w * m.m[3][3];
 }
+void Matrix_MultiplyPointXYW(struct mat m, struct Point i, struct Point *p) {
+  p->x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + i.w * m.m[3][0];
+  p->y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + i.w * m.m[3][1];
+  p->w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + i.w * m.m[3][3];
+}
+void Matrix_MultiplyPointZ(struct mat m, struct Point i, struct Point *p) {
+  p->z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + i.w * m.m[3][2];
+}
 void Point_Add(struct Point v1, struct Point v2, struct Point *p) {
   p->x = v1.x + v2.x;
   p->y = v1.y + v2.y;

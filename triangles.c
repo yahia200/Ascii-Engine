@@ -1,10 +1,16 @@
 #include "point.c"
 #include <ncurses.h>
+#include <pthread.h>
 #include <stdlib.h>
-int place = 0;
+#include <threads.h>
+#include <unistd.h>
 struct Mesh mesh;
 struct mat matW;
-struct Triangle triToDraw[MAX_MESH_SIZE];
+struct mat matProj, matRotZ, matRotX, matRotY, matWorld;
+struct mat matTrans;
+struct mat matView;
+struct args as[THREADS];
+struct Triangle transTris[MAX_MESH_SIZE];
 void copyTriangle(struct Triangle *a, struct Triangle *b) {
   b->p[0].x = a->p[0].x;
   b->p[0].y = a->p[0].y;
@@ -25,16 +31,16 @@ void copyTriangle(struct Triangle *a, struct Triangle *b) {
 }
 int comparePoints(const void *a, const void *b) {
   struct Triangle t1;
-  copyTriangle((struct Triangle *)a, &t1);
-  Matrix_MultiplyPoint(matW, t1.p[0], &t1.p[0]);
-  Matrix_MultiplyPoint(matW, t1.p[1], &t1.p[1]);
-  Matrix_MultiplyPoint(matW, t1.p[2], &t1.p[2]);
+   copyTriangle((struct Triangle *)a, &t1);
+   Matrix_MultiplyPointZ(matWorld, t1.p[0], &t1.p[0]);
+   Matrix_MultiplyPointZ(matWorld, t1.p[1], &t1.p[1]);
+   Matrix_MultiplyPointZ(matWorld, t1.p[2], &t1.p[2]);
 
   struct Triangle t2;
-  copyTriangle((struct Triangle *)b, &t2);
-  Matrix_MultiplyPoint(matW, t2.p[0], &t2.p[0]);
-  Matrix_MultiplyPoint(matW, t2.p[1], &t2.p[1]);
-  Matrix_MultiplyPoint(matW, t2.p[2], &t2.p[2]);
+   copyTriangle((struct Triangle *)b, &t2);
+   Matrix_MultiplyPointZ(matWorld, t2.p[0], &t2.p[0]);
+   Matrix_MultiplyPointZ(matWorld, t2.p[1], &t2.p[1]);
+   Matrix_MultiplyPointZ(matWorld, t2.p[2], &t2.p[2]);
   float mid1 = ((t1.p[0].z) + (t1.p[1].z) + (t1.p[2].z)) / 0.003;
   float mid2 = ((t2.p[0].z) + (t2.p[1].z) + (t2.p[2].z)) / 0.003;
   return mid2 - mid1;
@@ -44,27 +50,7 @@ void sortTri(struct Triangle t[MAX_MESH_SIZE], int s) {
 
   qsort(t, s, sizeof(struct Triangle), comparePoints);
 }
-int comparePointsy(const void *a, const void *b) {
-  struct Triangle t1;
-  copyTriangle((struct Triangle *)a, &t1);
-  Matrix_MultiplyPoint(matW, t1.p[0], &t1.p[0]);
-  Matrix_MultiplyPoint(matW, t1.p[1], &t1.p[1]);
-  Matrix_MultiplyPoint(matW, t1.p[2], &t1.p[2]);
 
-  struct Triangle t2;
-  copyTriangle((struct Triangle *)b, &t2);
-  Matrix_MultiplyPoint(matW, t2.p[0], &t2.p[0]);
-  Matrix_MultiplyPoint(matW, t2.p[1], &t2.p[1]);
-  Matrix_MultiplyPoint(matW, t2.p[2], &t2.p[2]);
-  float mid1 = ((t1.p[0].y) + (t1.p[1].y) + (t1.p[2].y)) / 0.003;
-  float mid2 = ((t2.p[0].y) + (t2.p[1].y) + (t2.p[2].y)) / 0.003;
-  return mid2 - mid1;
-}
-
-void sortTriy(struct Triangle t[MAX_MESH_SIZE], int s) {
-
-  qsort(t, s, sizeof(struct Triangle), comparePointsy);
-}
 void fillBottomFlatTriangle(struct Point v1, struct Point v2, struct Point v3,
                             int intensity) {
   float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
@@ -168,99 +154,18 @@ void rasterTriangle(struct Triangle t, int fill) {
   }
 }
 
-void clipp(struct Triangle t, int fill) {
-  struct Triangle clipped[2];
-  struct Triangle listTriangles[MAX_MESH_SIZE];
-  int ind = 0;
-  // Add initial triangle
-  copyTriangle(&t, &listTriangles[ind++]);
-  int nNewTriangles = 1;
-
-  for (int p = 0; p < 4; p++) {
-    int nTrisToAdd = 0;
-    while (nNewTriangles > 0) {
-      // Take triangle from front of queue
-      struct Triangle test;
-      copyTriangle(&listTriangles[ind--], &test);
-      nNewTriangles--;
-
-      // Clip it against a plane. We only need to test each
-      // subsequent plane, against subsequent new triangles
-      // as all triangles after a plane clip are guaranteed
-      // to lie on the inside of the plane. I like how this
-      // comment is almost completely and utterly justified
-      switch (p) {
-      case 0:
-        nTrisToAdd = Triangle_ClipAgainstPlane((struct Point){0.0f, 0.0f, 0.0f},
-                                               (struct Point){0.0f, 1.0f, 0.0f},
-                                               &test, &clipped[0], &clipped[1]);
-        break;
-      case 1:
-        nTrisToAdd = Triangle_ClipAgainstPlane(
-            (struct Point){0.0f, (float)MAX_HIEGHT - 1, 0.0f},
-            (struct Point){0.0f, -1.0f, 0.0f}, &test, &clipped[0], &clipped[1]);
-        break;
-      case 2:
-        nTrisToAdd = Triangle_ClipAgainstPlane((struct Point){0.0f, 0.0f, 0.0f},
-                                               (struct Point){1.0f, 0.0f, 0.0f},
-                                               &test, &clipped[0], &clipped[1]);
-        break;
-      case 3:
-        nTrisToAdd = Triangle_ClipAgainstPlane(
-            (struct Point){(float)MAX_WIDTH - 1, 0.0f, 0.0f},
-            (struct Point){-1.0f, 0.0f, 0.0f}, &test, &clipped[0], &clipped[1]);
-        break;
-      }
-
-      // Clipping may yield a variable number of triangles, so
-      // add these new ones to the back of the queue for subsequent
-      // clipping against next planes
-      for (int w = 0; w < nTrisToAdd; w++)
-        copyTriangle(&clipped[w], &listTriangles[++ind]);
-    }
-    nNewTriangles = ind + 1;
-  }
-  for (int i = 0; i <= ind; i++) {
-    rasterTriangle(listTriangles[i], fill);
-  }
-}
-
-void drawTriangle(struct Mesh *m, int fill) {
+void *drawDiv(void *in) {
+  struct Triangle triProjected, triViewed, triTransformed;
+  int start = ((struct args *)in)->start;
+  int end = ((struct args *)in)->end;
   int size = 0;
-  struct Triangle triProjected, triTransformed, triViewed;
-  struct mat matProj, matRotZ, matRotX, matRotY, matWorld;
-  Matrix_MakeRotationZ(fThetaz, &matRotZ);
-  Matrix_MakeRotationX(fThetax, &matRotX);
-  Matrix_MakeRotationY(fThetay, &matRotY);
-  Matrix_MakeProjection(90.0f, (float)MAX_HIEGHT / (float)MAX_WIDTH, 0.1f,
-                        1000.0f, &matProj);
-  struct mat matTrans;
-  Matrix_MakeTranslation(0, 0, 3, &matTrans);
-
-  Matrix_MultiplyMatrix(matRotZ, matRotX, &matWorld);  // Transform by rotation
-  Matrix_MultiplyMatrix(matWorld, matRotY, &matWorld); // Transform by rotation
-  Matrix_MultiplyMatrix(matWorld, matTrans,
-                        &matWorld); // Transform by translation
-
-  matW = matWorld;
-
-  struct Point pUp = {0, 1, 0, 1};
-  lookDir.x = 0;
-  lookDir.y = 0;
-  lookDir.z = 1;
-  lookDir.w = 1;
-  struct Point target;
-  Point_Add(camera, lookDir, &target);
-
-  struct mat matCamera;
-  Matrix_PointAt(camera, target, pUp, &matCamera);
-
-  struct mat matView;
-  Matrix_QuickInverse(matCamera, &matView);
-  for (int i = 0; i < m->size; i++) {
-    Matrix_MultiplyPoint(matWorld, m->Triangles[i].p[0], &triTransformed.p[0]);
-    Matrix_MultiplyPoint(matWorld, m->Triangles[i].p[1], &triTransformed.p[1]);
-    Matrix_MultiplyPoint(matWorld, m->Triangles[i].p[2], &triTransformed.p[2]);
+  for (int i = start; i < end; i++) {
+    Matrix_MultiplyPoint(matWorld, mesh.Triangles[i].p[0],
+                         &triTransformed.p[0]);
+    Matrix_MultiplyPoint(matWorld, mesh.Triangles[i].p[1],
+                         &triTransformed.p[1]);
+    Matrix_MultiplyPoint(matWorld, mesh.Triangles[i].p[2],
+                         &triTransformed.p[2]);
 
     struct Point normal, line1, line2;
     Point_Sub(triTransformed.p[1], triTransformed.p[0], &line1);
@@ -323,14 +228,54 @@ void drawTriangle(struct Mesh *m, int fill) {
         triProjected.p[2].x *= 0.5f * (float)MAX_WIDTH;
         triProjected.p[2].y *= 0.5f * (float)MAX_HIEGHT;
         triProjected.intensity = intensity;
-        // rasterTriangle(triProjected, fill);
-        copyTriangle(&triProjected, &triToDraw[size++]);
-        // clipp(triProjected, fill);
+        copyTriangle(&triProjected, &((struct args *)in)->t[size++]);
       }
     }
-    
   }
-for (int i = 0; i < size; i++) {
-      rasterTriangle(triToDraw[i], fill);
+  ((struct args *)in)->s = size;
+  return 0;
+}
+
+void drawTriangle(int fill) {
+  pthread_t threads[THREADS];
+  Matrix_MakeRotationZ(fThetaz, &matRotZ);
+  Matrix_MakeRotationX(fThetax, &matRotX);
+  Matrix_MakeRotationY(fThetay, &matRotY);
+  Matrix_MakeProjection(90.0f, (float)MAX_HIEGHT / (float)MAX_WIDTH, 0.1f,
+                        1000.0f, &matProj);
+
+  Matrix_MakeTranslation(0, 0, 3, &matTrans);
+
+  Matrix_MultiplyMatrix(matRotZ, matRotX, &matWorld);  // Transform by rotation
+  Matrix_MultiplyMatrix(matWorld, matRotY, &matWorld); // Transform by rotation
+  Matrix_MultiplyMatrix(matWorld, matTrans,
+                        &matWorld); // Transform by translation
+
+ 
+
+  struct Point pUp = {0, 1, 0, 1};
+  lookDir.x = 0;
+  lookDir.y = 0;
+  lookDir.z = 1;
+  lookDir.w = 1;
+  struct Point target;
+  Point_Add(camera, lookDir, &target);
+
+  struct mat matCamera;
+  Matrix_PointAt(camera, target, pUp, &matCamera);
+  sortTri(mesh.Triangles, mesh.size);
+  Matrix_QuickInverse(matCamera, &matView);
+
+  for (int i = 0; i < THREADS; i++) {
+    as[i].start = mesh.size * (i / THREADS);
+    as[i].end = mesh.size * ((i + 1) / THREADS);
+    pthread_create(&threads[i], NULL, drawDiv, (void *)&as[i]);
+  }
+
+  for (int j = 0; j < THREADS; j++) {
+    thrd_join(threads[j], NULL);
+    for (int i = 0; i < as[j].s; i++) {
+      rasterTriangle(as[j].t[i], fill);
     }
+  }
 }

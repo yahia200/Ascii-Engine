@@ -11,8 +11,7 @@ int main() {
   camera.y -= 2;
   while (1) {
     timer = clock();
-    drawMesh(1);
-    // drawMesh(&mesh, 0);
+   drawMesh(1);
     clearScreen();
     fThetay -= 0.01;
    // fThetax -=0.01;

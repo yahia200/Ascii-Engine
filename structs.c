@@ -14,3 +14,10 @@ struct Mesh {
   int size;
   struct Triangle Triangles[MAX_MESH_SIZE];
 };
+
+struct args {
+  int start;
+  int end;
+  struct Triangle t[MAX_MESH_SIZE];
+  int s;
+};
