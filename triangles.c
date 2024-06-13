@@ -293,7 +293,7 @@ void drawTriangle(struct Mesh *m, int fill) {
       int nClipped = 0;
       struct Triangle clipped[2];
       nClipped = Triangle_ClipAgainstPlane(
-          (struct Point){0, 0, 0.1, 1}, (struct Point){0, 0, 1, 1}, &triViewed,
+          (struct Point){0, 0, 1, 1}, (struct Point){0, 0, 1, 1}, &triViewed,
           &clipped[0], &clipped[1]);
 
       // printw("%d", nClipped);
